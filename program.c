@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 int evaluate_helper(int a, int b, char op);
 int evaluate_expression(const char* expression);
@@ -9,11 +10,22 @@ int precedence_checker(char op);
 int main()
 {
     char expression[100] = "";            // declaring a char array 
-    printf("Enter the expression: ");
-    fgets(expression, sizeof(expression), stdin);    // getting the expression from user
-    expression[strlen(expression)-1]='\0';   // removing the newline character
+    while(strlen(expression)==0)
+    {
+        printf("Enter the expression: ");
+        fgets(expression, sizeof(expression), stdin);    // getting the expression from user
+        expression[strlen(expression)-1]='\0';   // removing the newline character
+
+    }
     int result = evaluate_expression(expression);   // calling the function to evaluate the expression
-    printf("%d",result);
+    if(result==-1)
+    {
+        printf("Please enter a valid expression.");
+    }
+    else
+    {
+        printf("%d",result);
+    }
     return 0;
 
 }
@@ -48,8 +60,19 @@ int evaluate_expression(const char* expression)
         }
         else if(ch=='+' || ch=='-' || ch=='*' || ch=='/')
         {
+            if(operands_top<0)
+            {
+                printf("Oops! The expression you have entered is invalid.\n");
+                return -1;
+
+            }
             while(operators_top>=0 && precedence_checker(operators[operators_top])>=precedence_checker(ch))
             {
+                if(operands_top<1)
+                {
+                    printf("Oops! The expression you have entered is invalid.\n");
+                    return -1;
+                }
                 int b = operands[operands_top--];
                 int a = operands[operands_top--];
                 char op = operators[operators_top--];
@@ -63,13 +86,18 @@ int evaluate_expression(const char* expression)
         }
         else
         {
-            printf("Invalid Expression");
-            return 0;
+            printf("Oops! The expression you have entered is invalid.\n");
+            return -1;
         }
     }
 
     while(operators_top>=0)
     {
+         if(operands_top<1)
+         {
+             printf("Oops! The expression you have entered is invalid.\n");
+             return -1;
+         }
         int b = operands[operands_top--];
         int a = operands[operands_top--];
         char op = operators[operators_top--];
@@ -78,11 +106,6 @@ int evaluate_expression(const char* expression)
     }
 
     return operands[operands_top];
-    // for(int j=0; j<=operands_top; j++)
-    //     printf("%d ", operands[j]);
-    // for(int j=0; j<=operators_top; j++)
-    //     printf("%c ", operators[j]);
-    // return 0;
 }
 
 int precedence_checker(char op)
@@ -109,6 +132,11 @@ int evaluate_helper(int a, int b, char op)
         case '*':
             return a*b;
         case '/':
+            if(b==0)
+            {
+                printf("Cannot divide by zero");
+                exit(1);
+            }
             return a/b;
         default:
             break;
