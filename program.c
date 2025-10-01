@@ -75,15 +75,24 @@ void createUser()
         printf("Error opening file\n");
         return;
     }
-    fprintf(file, "User ID: %d, User Name: %s, User Age: %d",user.id,user.name,user.age);
+    fprintf(file, "User ID: %d, User Name: %s, User Age: %d\n",user.id,user.name,user.age);
     fclose(file);
 
-    printf("User added successfully");
+    printf("User added successfully\n");
 }
 
 void readUser()
 {
+    FILE *file = fopen("users.txt","r");
 
+    char content[1000] = "";
+    if(file!=NULL)
+    {
+        while(fgets(content, 1000, file))
+        {
+            printf("%s",content);
+        }
+    }
 }
 
 
