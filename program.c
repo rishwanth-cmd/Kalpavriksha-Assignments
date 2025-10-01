@@ -1,145 +1,99 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>
 
-int evaluate_helper(int a, int b, char op);
-int evaluate_expression(const char* expression);
-int precedence_checker(char op);
+typedef struct {
+    int id;
+    char name[50];
+    int age;
+} User;
 
+// Function prototypes
+void createUser();
+void readUser();
+void updateUser();
+void deleteUser();
 
 int main()
 {
-    char expression[100] = "";            // declaring a char array 
-    while(strlen(expression)==0)
+    bool turn = true;
+    while (turn)
     {
-        printf("Enter the expression: ");
-        fgets(expression, sizeof(expression), stdin);    // getting the expression from user
-        expression[strlen(expression)-1]='\0';   // removing the newline character
+        printf("1. Create User\n");
+        printf("2. Read Users\n");
+        printf("3. Update User\n");
+        printf("4. Delete User\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        int choice;
+        scanf("%d", &choice);
+        getchar();
 
-    }
-    int result = evaluate_expression(expression);   // calling the function to evaluate the expression
-    if(result==-1)
-    {
-        printf("Please enter a valid expression.");
-    }
-    else
-    {
-        printf("%d",result);
-    }
-    return 0;
-
-}
-
-int evaluate_expression(const char* expression)
-{
-    int operands[100];   // for storing operands
-    char operators[100];   // for storing operators
-    int i=0, len=strlen(expression);
-    int operands_top=-1, operators_top=-1;
-
-    while(i<len)
-    {
-        char ch = expression[i];
-
-        if(ch==' ')
+        switch (choice)
         {
-            i++;
-            continue;
-        }
-        
-        // converting string to integer and pushing it to operands stack
-        if(ch>='0' && ch<='9')
-        {
-            int num=0;
-            while(i<len && expression[i]>='0' && expression[i]<='9')
-            {
-                num = num*10 + (expression[i]-'0');
-                i++;
-            }
-            operands[++operands_top] = num;
-        }
-        else if(ch=='+' || ch=='-' || ch=='*' || ch=='/')
-        {
-            if(operands_top<0)
-            {
-                printf("Oops! The expression you have entered is invalid.\n");
-                return -1;
-
-            }
-            while(operators_top>=0 && precedence_checker(operators[operators_top])>=precedence_checker(ch))
-            {
-                if(operands_top<1)
-                {
-                    printf("Oops! The expression you have entered is invalid.\n");
-                    return -1;
-                }
-                int b = operands[operands_top--];
-                int a = operands[operands_top--];
-                char op = operators[operators_top--];
-                int res = evaluate_helper(a,b,op);
-                operands[++operands_top] = res;
-            }
-
-            // pushing operator to operators stack
-            operators[++operators_top] = ch;
-            i++;
-        }
-        else
-        {
-            printf("Oops! The expression you have entered is invalid.\n");
-            return -1;
+            case 1:
+                createUser();
+                break;
+            case 2:
+                readUser();
+                break;
+            case 3:
+                updateUser();
+                break;
+            case 4:
+                deleteUser();
+                break;
+            case 5:
+                turn = false;
+                break;
+            default:
+                printf("Invalid choice. Please choose a valid option.\n");
         }
     }
 
-    while(operators_top>=0)
-    {
-         if(operands_top<1)
-         {
-             printf("Oops! The expression you have entered is invalid.\n");
-             return -1;
-         }
-        int b = operands[operands_top--];
-        int a = operands[operands_top--];
-        char op = operators[operators_top--];
-        int res = evaluate_helper(a, b, op);
-        operands[++operands_top] = res;
-    }
-
-    return operands[operands_top];
-}
-
-int precedence_checker(char op)
-{
-    if(op == '/' || op == '*')
-    {
-        return 2;
-    }
-    if(op == '+' || op == '-')
-    {
-        return 1;
-    }
     return 0;
 }
 
-int evaluate_helper(int a, int b, char op)
+void createUser()
 {
-    switch (op)
+    User user;
+
+    printf("Enter User ID: \n");
+    scanf("%d",&user.id);
+    getchar();
+
+    printf("Enter User Name: \n");
+    fgets(user.name, sizeof(user.name), stdin);
+    user.name[strlen(user.name)-1]='\0';
+
+    printf("Enter User Age: ");
+    scanf("%d",&user.age);
+
+    FILE *file = fopen("users.txt", "a");
+    if (!file)
     {
-        case '+':
-            return a+b;
-        case '-':
-            return a-b;
-        case '*':
-            return a*b;
-        case '/':
-            if(b==0)
-            {
-                printf("Cannot divide by zero");
-                exit(1);
-            }
-            return a/b;
-        default:
-            break;
+        printf("Error opening file\n");
+        return;
     }
-    return 0;
+    fprintf(file, "User ID: %d, User Name: %s, User Age: %d",user.id,user.name,user.age);
+    fclose(file);
+
+    printf("User added successfully");
+}
+
+void readUser()
+{
+
+}
+
+
+void updateUser()
+{
+
+}
+
+
+void deleteUser()
+{
+
 }
