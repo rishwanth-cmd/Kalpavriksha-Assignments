@@ -47,7 +47,7 @@ double evaluate_expression(const char* expression)
             continue;
         }
         
-        // converting string to integer and pushing it to operands stack
+        // converting string to double and pushing it to operands stack
         if(ch>='0' && ch<='9')
         {
             char numArr[50]="";
