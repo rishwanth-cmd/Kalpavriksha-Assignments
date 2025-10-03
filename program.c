@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-int evaluate_helper(int a, int b, char op);
-int evaluate_expression(const char* expression);
+double evaluate_helper(double a, double b, char op);
+double evaluate_expression(const char* expression);
 int precedence_checker(char op);
 
 
@@ -17,22 +17,22 @@ int main()
         expression[strlen(expression)-1]='\0';   // removing the newline character
 
     }
-    int result = evaluate_expression(expression);   // calling the function to evaluate the expression
+    double result = evaluate_expression(expression);   // calling the function to evaluate the expression
     if(result==-1)
     {
         printf("Please enter a valid expression.");
     }
     else
     {
-        printf("%d",result);
+        printf("%.2lf",result);
     }
     return 0;
 
 }
 
-int evaluate_expression(const char* expression)
+double evaluate_expression(const char* expression)
 {
-    int operands[100];   // for storing operands
+    double operands[100];   // for storing operands
     char operators[100];   // for storing operators
     int i=0, len=strlen(expression);
     int operands_top=-1, operators_top=-1;
@@ -50,12 +50,14 @@ int evaluate_expression(const char* expression)
         // converting string to integer and pushing it to operands stack
         if(ch>='0' && ch<='9')
         {
-            int num=0;
-            while(i<len && expression[i]>='0' && expression[i]<='9')
+            char numArr[50]="";
+            int j=0;
+            while(i<len && ((expression[i]>='0' && expression[i]<='9') || expression[i]=='.'))
             {
-                num = num*10 + (expression[i]-'0');
-                i++;
+                numArr[j++] = expression[i++];
             }
+            numArr[j]='\0';
+            double num = atof(numArr);
             operands[++operands_top] = num;
         }
         else if(ch=='+' || ch=='-' || ch=='*' || ch=='/')
@@ -73,10 +75,10 @@ int evaluate_expression(const char* expression)
                     printf("Oops! The expression you have entered is invalid.\n");
                     return -1;
                 }
-                int b = operands[operands_top--];
-                int a = operands[operands_top--];
+                double b = operands[operands_top--];
+                double a = operands[operands_top--];
                 char op = operators[operators_top--];
-                int res = evaluate_helper(a,b,op);
+                double res = evaluate_helper(a,b,op);
                 operands[++operands_top] = res;
             }
 
@@ -98,10 +100,10 @@ int evaluate_expression(const char* expression)
              printf("Oops! The expression you have entered is invalid.\n");
              return -1;
          }
-        int b = operands[operands_top--];
-        int a = operands[operands_top--];
+        double b = operands[operands_top--];
+        double a = operands[operands_top--];
         char op = operators[operators_top--];
-        int res = evaluate_helper(a, b, op);
+        double res = evaluate_helper(a, b, op);
         operands[++operands_top] = res;
     }
 
@@ -121,7 +123,7 @@ int precedence_checker(char op)
     return 0;
 }
 
-int evaluate_helper(int a, int b, char op)
+double evaluate_helper(double a, double b, char op)
 {
     switch (op)
     {
