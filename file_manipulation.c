@@ -67,8 +67,9 @@ void createUser()
     FILE *file = fopen("users.txt", "r");
     if (!file)
     {
-        printf("Error opening file\n");
-        return;
+        file = fopen("users.txt", "w");
+        fclose(file);
+        file = fopen("users.txt", "r");
     }
 
     printf("Enter User ID: \n");
@@ -113,13 +114,19 @@ void readUser()
 {
     FILE *file = fopen("users.txt","r");
 
-    char content[1000] = "";
-    if(file!=NULL)
+    if(file==NULL)
     {
-        while(fgets(content, 1000, file))
-        {
-            printf("%s",content);
-        }
+        printf("Error opening file.\n");
+        return;
+    }
+
+    int id;
+    char name[50];
+    int age;
+
+    while(fscanf(file, "User ID: %d, User Name: %49[^,], User Age: %d\n", &id, name, &age)==3)
+    {
+        printf("User ID: %d, User Name: %s, User Age: %d\n",id,name,age);
     }
 
     fclose(file);
