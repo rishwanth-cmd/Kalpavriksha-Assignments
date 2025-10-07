@@ -9,15 +9,15 @@ int precedence_checker(char op);
 
 int main()
 {
-    char expression[100] = "";            // declaring a char array 
+    char expression[100] = "";            
     while(strlen(expression)==0)
     {
         printf("Enter the expression: ");
-        fgets(expression, sizeof(expression), stdin);    // getting the expression from user
-        expression[strlen(expression)-1]='\0';   // removing the newline character
+        fgets(expression, sizeof(expression), stdin);    
+        expression[strlen(expression)-1]='\0';   
 
     }
-    double result = evaluate_expression(expression);   // calling the function to evaluate the expression
+    double result = evaluate_expression(expression);   
     if(result==-1)
     {
         printf("Please enter a valid expression.");
@@ -32,8 +32,8 @@ int main()
 
 double evaluate_expression(const char* expression)
 {
-    double operands[100];   // for storing operands
-    char operators[100];   // for storing operators
+    double operands[100];   
+    char operators[100];   
     int i=0, len=strlen(expression);
     int operands_top=-1, operators_top=-1;
 
@@ -47,7 +47,6 @@ double evaluate_expression(const char* expression)
             continue;
         }
         
-        // converting string to double and pushing it to operands stack
         if(ch>='0' && ch<='9')
         {
             char numArr[50]="";
@@ -79,10 +78,15 @@ double evaluate_expression(const char* expression)
                 double a = operands[operands_top--];
                 char op = operators[operators_top--];
                 double res = evaluate_helper(a,b,op);
+
+                if(res==-1)
+                {
+                    return -1;
+                }
+
                 operands[++operands_top] = res;
             }
 
-            // pushing operator to operators stack
             operators[++operators_top] = ch;
             i++;
         }
@@ -104,6 +108,12 @@ double evaluate_expression(const char* expression)
         double a = operands[operands_top--];
         char op = operators[operators_top--];
         double res = evaluate_helper(a, b, op);
+
+        if(res==-1)
+        {
+            return -1;
+        }
+
         operands[++operands_top] = res;
     }
 
@@ -136,8 +146,8 @@ double evaluate_helper(double a, double b, char op)
         case '/':
             if(b==0)
             {
-                printf("Cannot divide by zero");
-                exit(1);
+                printf("Cannot divide by zero.\n");
+                return -1;
             }
             return a/b;
         default:
