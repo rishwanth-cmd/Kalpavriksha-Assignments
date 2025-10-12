@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 typedef struct
 {
@@ -14,6 +15,9 @@ typedef struct
 
 } Student;
 
+bool rollNoValidation(int rollNo);
+bool nameValidation(char name[50]);
+bool marksValidation(double mark1, double mark2, double mark3);
 double calculateTotalMarks(double mark1, double mark2, double mark3);
 double calculateAverageMark(double totalMarks);
 char calculateGrade(double totalMarks);
@@ -30,20 +34,61 @@ int main()
     scanf("%d",&n);
     Student student[100];
     
-
-    
     for(int i = 0; i < n; i++)
     {
         printf("Enter Roll No, Name, Mark 1, Mark 2, Mark 3: \n");
         scanf("%d %50s %lf %lf %lf", &student[i].rollNo, student[i].name, &student[i].mark1, &student[i].mark2, &student[i].mark3);
-        student[i].totalMarks = calculateTotalMarks(student[i].mark1, student[i].mark2, student[i].mark3);
-        student[i].averageMark = calculateAverageMark(student[i].totalMarks);
-        student[i].grade = calculateGrade(student[i].averageMark);
+        bool rollNoPassed = rollNoValidation(student[i].rollNo);
+        bool namePassed = nameValidation(student[i].name);
+        bool marksPassed = marksValidation(student[i].mark1, student[i].mark2, student[i].mark3);
+        if(rollNoPassed && namePassed && marksPassed)
+        {
+            student[i].totalMarks = calculateTotalMarks(student[i].mark1, student[i].mark2, student[i].mark3);
+            student[i].averageMark = calculateAverageMark(student[i].totalMarks);
+            student[i].grade = calculateGrade(student[i].averageMark);
+        }
+        else
+        {
+            printf("Please enter valid details.\n");
+            i--;
+        }
 
     }
     displayStudentsRecord(student, n);
-    printf("Roll Numbers: ");
+    printf("List of Roll Numbers (via recursion): ");
     displayRollNumber(student, n, 0);
+
+    return 0;
+
+}
+
+
+bool rollNoValidation(int rollNo)
+{
+    return rollNo > 0;
+}
+
+bool nameValidation(char name[50])
+{
+    for(int i = 0; name[i] != '\0'; i++)
+    {
+        if(!(name[i]>='a' && name[i]<='z'))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool marksValidation(double mark1, double mark2, double mark3)
+{
+    if(mark1 < 0 || mark1 > 100 ||
+       mark2 < 0 || mark2 > 100 ||
+       mark3 < 0 || mark3 > 100  )
+    {
+        return false;
+    }
+    return true;
 }
 
 double calculateTotalMarks(double mark1, double mark2, double mark3)
@@ -86,10 +131,6 @@ void displayStudentsRecord(Student student[], int n)
     {
         printf("Roll Number: %d\n",student[i].rollNo);
         printf("Name: %s\n",student[i].name);
-        for(int j = 0; j < 3; j++)
-        {
-
-        }
         printf("Total Mark: %.2lf\n", student[i].totalMarks);
         printf("Average Mark: %.2lf\n", student[i].averageMark);
         char grade = student[i].grade;
