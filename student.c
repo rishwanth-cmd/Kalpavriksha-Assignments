@@ -21,20 +21,21 @@ bool marksValidation(double mark1, double mark2, double mark3);
 double calculateTotalMarks(double mark1, double mark2, double mark3);
 double calculateAverageMark(double totalMarks);
 char calculateGrade(double totalMarks);
-void displayStudentsRecord(Student student[], int n);
+void sortByRollNo(Student student[], int noOfStudents);
+void displayStudentsRecord(Student student[], int noOfStudents);
 void displayPerformance(char grade);
-void displayRollNumber(Student student[], int n, int start);
+void displayRollNumber(Student student[], int noOfStudents, int start);
 
 
 
 int main()
 {
-    int n;
+    int noOfStudents;
     printf("Enter the number of students: ");
-    scanf("%d",&n);
+    scanf("%d",&noOfStudents);
     Student student[100];
     
-    for(int i = 0; i < n; i++)
+    for(int i = 0; i < noOfStudents; i++)
     {
         printf("Enter Roll No, Name, Mark 1, Mark 2, Mark 3: \n");
         scanf("%d %50s %lf %lf %lf", &student[i].rollNo, student[i].name, &student[i].mark1, &student[i].mark2, &student[i].mark3);
@@ -54,9 +55,10 @@ int main()
         }
 
     }
-    displayStudentsRecord(student, n);
+    sortByRollNo(student, noOfStudents);
+    displayStudentsRecord(student, noOfStudents);
     printf("List of Roll Numbers (via recursion): ");
-    displayRollNumber(student, n, 0);
+    displayRollNumber(student, noOfStudents, 0);
 
     return 0;
 
@@ -125,9 +127,32 @@ char calculateGrade(double averageMark)
      }
 }
 
-void displayStudentsRecord(Student student[], int n)
+void sortByRollNo(Student student[], int noOfStudents)
 {
-    for(int i = 0; i < n; i++)
+    bool swap = false;
+    for(int i = 0; i < noOfStudents - 1; i++)
+    {
+        swap = false;
+        for(int j = 0; j < noOfStudents - i - 1; j++)
+        {
+            if(student[j].rollNo > student[j+1].rollNo)
+            {
+                Student tempStudent = student[j];
+                student[j] = student[j+1];
+                student[j+1] = tempStudent;
+                swap = true;
+            }
+        }
+        if(swap == false)
+        {
+            break;
+        }
+    }
+}
+
+void displayStudentsRecord(Student student[], int noOfStudents)
+{
+    for(int i = 0; i < noOfStudents; i++)
     {
         printf("Roll Number: %d\n",student[i].rollNo);
         printf("Name: %s\n",student[i].name);
@@ -166,12 +191,12 @@ void displayPerformance(char grade)
     return;
 }
 
-void displayRollNumber(Student student[], int n, int start)
+void displayRollNumber(Student student[], int noOfStudents, int start)
 {
-    if(n == start)
+    if(noOfStudents == start)
     {
         return;
     }
     printf("%d ",student[start].rollNo);
-    displayRollNumber(student, n, start+1);
+    displayRollNumber(student, noOfStudents, start+1);
 }
