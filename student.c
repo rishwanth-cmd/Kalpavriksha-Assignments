@@ -31,8 +31,21 @@ void displayRollNumber(Student student[], int noOfStudents, int start);
 int main()
 {
     int noOfStudents;
-    printf("Enter the number of students: ");
-    scanf("%d",&noOfStudents);
+    while(true)
+    {
+        printf("Enter the number of students: ");
+        scanf("%d",&noOfStudents);
+
+        if(noOfStudents < 1 || noOfStudents > 100)
+        {
+            printf("The students count should be between 1 to 100 only.\n");
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
     Student student[100];
     
     for(int i = 0; i < noOfStudents; i++)
