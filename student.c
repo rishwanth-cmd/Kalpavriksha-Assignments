@@ -46,7 +46,7 @@ int main()
             break;
         }
     }
-    Student student[100];
+    Student student[noOfStudents];
     
     for(int i = 0; i < noOfStudents; i++)
     {
@@ -89,6 +89,7 @@ bool nameValidation(char name[50])
     {
         if(!(name[i]>='a' && name[i]<='z'))
         {
+            printf("Please enter a valid name.\n");
             return false;
         }
     }
@@ -101,6 +102,7 @@ bool marksValidation(double mark1, double mark2, double mark3)
        mark2 < 0 || mark2 > 100 ||
        mark3 < 0 || mark3 > 100  )
     {
+        printf("Marks should be between 0 to 100 only.\n");
         return false;
     }
     return true;
