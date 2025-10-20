@@ -2,6 +2,15 @@
 #include <string.h>
 #include <stdbool.h>
 
+typedef enum
+{
+    Grade_A = 'A',
+    Grade_B = 'B',
+    Grade_C = 'C',
+    Grade_D = 'D',
+    Grade_F = 'F'
+} Grade;
+
 typedef struct
 {
     int rollNo;
@@ -11,7 +20,7 @@ typedef struct
     double mark3;
     double totalMarks;
     double averageMark;
-    char grade;
+    Grade grade;
 
 } Student;
 
@@ -19,11 +28,11 @@ bool rollNoValidation(int rollNo);
 bool nameValidation(char name[50]);
 bool marksValidation(double mark1, double mark2, double mark3);
 double calculateTotalMarks(double mark1, double mark2, double mark3);
-double calculateAverageMark(double totalMarks);
-char calculateGrade(double totalMarks);
+double calculateAverageMark(double mark1, double mark2, double mark3);
+Grade calculateGrade(double totalMarks);
 void sortByRollNo(Student student[], int noOfStudents);
 void displayStudentsRecord(Student student[], int noOfStudents);
-void displayPerformance(char grade);
+void displayPerformance(Grade grade);
 void displayRollNumber(Student student[], int noOfStudents, int start);
 
 
@@ -58,7 +67,7 @@ int main()
         if(rollNoPassed && namePassed && marksPassed)
         {
             student[i].totalMarks = calculateTotalMarks(student[i].mark1, student[i].mark2, student[i].mark3);
-            student[i].averageMark = calculateAverageMark(student[i].totalMarks);
+            student[i].averageMark = calculateAverageMark(student[i].mark1, student[i].mark2, student[i].mark3);
             student[i].grade = calculateGrade(student[i].averageMark);
         }
         else
@@ -87,7 +96,7 @@ bool nameValidation(char name[50])
 {
     for(int i = 0; name[i] != '\0'; i++)
     {
-        if(!(name[i]>='a' && name[i]<='z'))
+        if(!(name[i]>='a' && name[i]<='z') || (name[i] >= 'A' && name[i] <= 'Z') || (name[i] == ' '))
         {
             printf("Please enter a valid name.\n");
             return false;
@@ -113,32 +122,33 @@ double calculateTotalMarks(double mark1, double mark2, double mark3)
     return mark1 + mark2 + mark3;
 }
 
-double calculateAverageMark(double totalMarks)
+double calculateAverageMark(double mark1, double mark2, double mark3)
 {
-    return totalMarks/3.0;
+    double averageMark = (mark1 + mark2 + mark3)/3.0;
+    return averageMark;
 }
 
-char calculateGrade(double averageMark)
+Grade calculateGrade(double averageMark)
 {
      if(averageMark >= 85 && averageMark <= 100)
      {
-        return 'A';
+        return Grade_A;
      }
      else if(averageMark >= 70 && averageMark < 85)
      {
-        return 'B';
+        return Grade_B;
      }
      else if(averageMark >= 50 && averageMark < 70)
      {
-        return 'C';
+        return Grade_C;
      }
      else if(averageMark>= 35 && averageMark < 50)
      {
-        return 'D';
+        return Grade_D;
      }
      else if(averageMark >= 0 && averageMark < 35)
      {
-        return 'F';
+        return Grade_F;
      }
 }
 
@@ -180,30 +190,28 @@ void displayStudentsRecord(Student student[], int noOfStudents)
     }
 }
 
-void displayPerformance(char grade)
+void displayPerformance(Grade grade)
 {
-    if(grade == 'A')
+    switch (grade)
     {
-        printf("Performance: *****\n");
+        case Grade_A:
+            printf("Performance: *****\n");
+            break;
+        case Grade_B:
+            printf("Performance: ****\n");
+            break;
+        case Grade_C:
+            printf("Performance: ***\n");
+            break;
+        case Grade_D:
+            printf("Performance: **\n");
+            break;
+        case Grade_F:
+            printf("Performance: Grade is too low.\n");
+            break;
+        default:
+            printf("Invalid grade.\n");
     }
-    else if(grade == 'B')
-    {
-        printf("Performance: ****\n");
-    }
-    else if(grade == 'C')
-    {
-        printf("Performance: ***\n");
-    }
-    else if(grade == 'D')
-    {
-        printf("Performance: **\n");
-    }
-    else
-    {
-        printf("Performance: Grade is too low.\n");
-        return;
-    }
-    return;
 }
 
 void displayRollNumber(Student student[], int noOfStudents, int start)
