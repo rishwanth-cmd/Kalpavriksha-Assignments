@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 void rotate90Degree(int **matrix, int matrixSize);
 void displayMatrix(int **matrix, int matrixSize);
@@ -8,13 +9,15 @@ void applySmoothing(int **matrix, int matrixSize);
 int main()
 {
     int matrixSize;
-    printf("Enter the size of the matrix: \n");
+    printf("Enter the size of the matrix between 2 - 10: \n");
     scanf("%d",&matrixSize);
-    if(matrixSize < 2 || matrixSize > 10)
+    while(matrixSize < 2 || matrixSize > 10)
     {
-        printf("Invalid size.\n");
-        return 1;
+        printf("Invalid size. Enter again: \n");
+        scanf("%d",&matrixSize);
     }
+
+    srand(time(NULL));
 
     int **matrix = (int **)malloc(matrixSize * sizeof(int *));
     for(int i = 0; i < matrixSize; i++)
@@ -35,8 +38,6 @@ int main()
     displayMatrix(matrix, matrixSize);
     applySmoothing(matrix, matrixSize);
     displayMatrix(matrix, matrixSize);
-
-
 }
 
 
