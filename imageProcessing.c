@@ -9,13 +9,18 @@ void applySmoothing(int **matrix, int matrixSize);
 int main()
 {
     int matrixSize;
-    printf("Enter the size of the matrix between 2 - 10: \n");
-    scanf("%d",&matrixSize);
-    while(matrixSize < 2 || matrixSize > 10)
+    do
     {
-        printf("Invalid size. Enter again: \n");
+        printf("Enter the size of the matrix between 2 - 10: \n");
         scanf("%d",&matrixSize);
-    }
+        if(matrixSize < 2 || matrixSize > 10)
+        {
+            printf("Invalid size.\n");
+        }
+
+
+    } while(matrixSize < 2 || matrixSize > 10);
+    
 
     srand(time(NULL));
 
@@ -32,11 +37,13 @@ int main()
             *(*(matrix + i) + j) = rand() % 256;
         }
     }
-
+    printf("Original Matrix:\n");
     displayMatrix(matrix, matrixSize);
     rotate90Degree(matrix, matrixSize);
+    printf("Matrix after 90 degree rotation:\n");
     displayMatrix(matrix, matrixSize);
     applySmoothing(matrix, matrixSize);
+    printf("Matrix after applying smoothing filter:\n");
     displayMatrix(matrix, matrixSize);
 }
 
@@ -80,18 +87,15 @@ void displayMatrix(int **matrix, int matrixSize)
 
 void applySmoothing(int **matrix, int matrixSize)
 {
-    int *tempMatrix=(int*)malloc(matrixSize * matrixSize * sizeof(int));
-
-    for (int i = 0; i < matrixSize; i++)
-    {
-        for (int j = 0; j < matrixSize; j++)
-        {
-            *(tempMatrix + i * matrixSize + j) = *(*(matrix + i) + j);
-        }
-    }
+    int *tempRow = (int*)malloc(matrixSize * sizeof(int));
 
     for(int row = 0; row < matrixSize; row++)
     {
+        for(int j = 0; j < matrixSize; j++)
+        {
+            *(tempRow + j) = *(*(matrix + row) + j);
+        }
+
         for(int column = 0; column < matrixSize; column++)
         {
             int sum = 0;
@@ -103,13 +107,19 @@ void applySmoothing(int **matrix, int matrixSize)
                 {
                     if(i >= 0 && i < matrixSize && j >= 0 && j < matrixSize)
                     {
-                        sum += *(tempMatrix + i * matrixSize + j);
+                        sum += *(*(matrix + i) + j);
                         count++;
                     }
                 }
             }
-            *(*(matrix + row) + column) = sum / count; 
+            *(tempRow + column) = sum / count;
+        }
+        
+        for (int j = 0; j < matrixSize; j++)
+        {
+            *(*(matrix + row) + j) = *(tempRow + j);
         }
     }
-    free(tempMatrix);
+
+    free(tempRow);
 }
