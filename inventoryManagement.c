@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define MINIMUM_NO_OF_PRODUCTS 1
+#define MAXIMUM_NO_OF_PRODUCTS 100
+
 typedef struct
 {
     int id;
@@ -27,12 +30,12 @@ int main()
     {
         printf("Enter the initial number of products (1 - 100): ");
         scanf("%d", &noOfProducts);
-        if(noOfProducts < 1 || noOfProducts > 100)
+        if(noOfProducts < MINIMUM_NO_OF_PRODUCTS || noOfProducts > MAXIMUM_NO_OF_PRODUCTS)
         {
             printf("Invalid size. Please try again.\n");
         }
 
-    } while(noOfProducts < 1 || noOfProducts > 100);
+    } while(noOfProducts < MINIMUM_NO_OF_PRODUCTS || noOfProducts > MAXIMUM_NO_OF_PRODUCTS);
 
     product = (Product *)calloc(noOfProducts, sizeof(Product));
 
@@ -43,19 +46,41 @@ int main()
     }
 
 
-
-
     for(int i = 0; i < noOfProducts; i++)
     {
         printf("Enter the details of product %d:\n", i+1);
         printf("Enter Product ID: ");
         scanf(" %d", &product[i].id);
+        if(product[i].id < 1 || product[i].id > 10000)
+        {
+            printf("Please enter the product ID range between 1 - 10000.\n");
+            i--;
+            continue;
+        }
         printf("Enter Product Name: ");
         scanf(" %50s", product[i].name);
+        if(strlen(product[i].name) > 50)
+        {
+            printf("Please enter product name length less than 50");
+            i--;
+            continue;
+        }
         printf("Enter Product Price: ");
         scanf(" %f", &product[i].price);
+        if(product[i].price < 1 || product[i].price > 100000)
+        {
+            printf("Please enter the product price range between 1 - 100000.\n");
+            i--;
+            continue;
+        }
         printf("Enter Product Quantity: ");
         scanf(" %d", &product[i].quantity);
+        if(product[i].quantity < 1 || product[i].quantity > 1000000)
+        {
+            printf("Please enter the product price range between 1 - 1000000.\n");
+            i--;
+            continue;
+        }
     }
 
     bool turn = true;
@@ -111,6 +136,7 @@ int main()
             case 8:
                 turn = false;
                 free(product);
+                product = NULL;
                 printf("Freed memory!\n");
                 break;
 
@@ -142,12 +168,30 @@ void addProduct(Product **product, int *currentProductCapacity, int *totalProduc
     printf("Enter details for new product: \n");
     printf("Enter Product ID: ");
     scanf(" %d", &(*product)[*currentProductCapacity].id);
+    if((*product)[*currentProductCapacity].id < 1 || (*product)[*currentProductCapacity].id > 10000)
+    {
+        printf("Please enter the product ID range between 1 - 10000.\n");
+        return;
+    }
     printf("Enter Product Name: ");
     scanf(" %50s", (*product)[*currentProductCapacity].name);
+    if(strlen((*product)[*currentProductCapacity].name) > 50)
+    {
+        printf("Please enter product name length less than 50");
+    }
     printf("Enter Product Price: ");
     scanf(" %f", &(*product)[*currentProductCapacity].price);
+    if((*product)[*currentProductCapacity].price < 1 || (*product)[*currentProductCapacity].price > 100000)
+    {
+        printf("Please enter the product price range between 1 - 100000.\n");
+    }
     printf("Enter Product Quantity: ");
     scanf(" %d", &(*product)[*currentProductCapacity].quantity);
+    if((*product)[*currentProductCapacity].quantity < 1 || (*product)[*currentProductCapacity].quantity > 1000000)
+    {
+        printf("Please enter the product price range between 1 - 1000000.\n");
+    }
+
     (*currentProductCapacity)++;
 
     printf("Product Added Successfully!\n");
@@ -183,10 +227,10 @@ void updateQuantity(Product *product, int currentProductCapacity)
             break;
         }
 
-        if(!found)
-        {
-            printf("Product with ID %d not found.\n", id);
-        }
+    }
+    if(!found)
+    {
+        printf("Product with ID %d not found.\n", id);
     }
 }
 
@@ -226,7 +270,6 @@ void searchProductByName(Product *product, int currentProductCapacity)
         {
             printf("Product ID: %d | Name: %s | Price: %.2f | Quantity: %d\n", product[i].id, product[i].name, product[i].price, product[i].quantity);
             found = true;
-            break;
         }
     }
     if(!found)
@@ -252,7 +295,6 @@ void searchProductByPrice(Product *product, int currentProductCapacity)
         {
             printf("Product ID: %d | Name: %s | Price: %.2f | Quantity: %d\n", product[i].id, product[i].name, product[i].price, product[i].quantity);
             found = true;
-            break;
         }
     }
     if(!found)
