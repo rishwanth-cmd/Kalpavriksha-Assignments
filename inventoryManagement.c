@@ -17,7 +17,7 @@ void updateQuantity(Product *product, int currentProductCapacity);
 void searchProductByID(Product *product, int currentProductCapacity);
 void searchProductByName(Product *product, int currentProductCapacity);
 void searchProductByPrice(Product *product, int currentProductCapacity);
-// void deleteProduct();
+void deleteProduct(Product **product, int *currentProductCapacity);
 
 int main()
 {
@@ -104,9 +104,9 @@ int main()
                 searchProductByPrice(product, currentProductCapacity);
                 break;
         
-            // case 7:
-                // deleteProduct();
-                // break;
+            case 7:
+                deleteProduct(&product, &currentProductCapacity);
+                break;
             
             case 8:
                 turn = false;
@@ -238,5 +238,61 @@ void searchProductByName(Product *product, int currentProductCapacity)
 
 void searchProductByPrice(Product *product, int currentProductCapacity)
 {
+    float minPrice;
+    float maxPrice;
+    bool found = false;
+
+    printf("Enter minimum price: ");
+    scanf("%f", &minPrice);
+    printf("Enter maximum price: ");
+    scanf("%f", &maxPrice);
+    for(int i = 0; i < currentProductCapacity; i++)
+    {
+        if (product[i].price >= minPrice && product[i].price <= maxPrice)
+        {
+            printf("Product ID: %d | Name: %s | Price: %.2f | Quantity: %d\n", product[i].id, product[i].name, product[i].price, product[i].quantity);
+            found = true;
+            break;
+        }
+    }
+    if(!found)
+    {
+        printf("No products found in this price range.\n");
+    }
+
+}
+
+
+void deleteProduct(Product **product, int *currentProductCapacity)
+{
+    int id;
+    int index = -1;
+    printf("Enter Product ID to delete: ");
+    scanf("%d", &id);
+    for(int i = 0; i < *currentProductCapacity; i++)
+    {
+        if((*product)[i].id == id)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    if(index == -1)
+    {
+        printf("Product not found.\n");
+        return;
+    }
+
+    for(int i = index; i < *currentProductCapacity - 1; i++)
+    {
+        (*product)[i] = (*product)[i + 1];
+    }
+
+    (*currentProductCapacity)--;
+
+    printf("Product with ID %d deleted successfully.\n", id);
+
+    *product = (Product *)realloc(*product, (*currentProductCapacity) * sizeof(Product));
 
 }
