@@ -501,16 +501,3 @@ void dfCommand()
     printf("Free Blocks: %d\n", freeCount);
     printf("Disk Usage: %.2f%%\n", usage);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
