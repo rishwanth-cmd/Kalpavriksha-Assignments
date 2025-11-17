@@ -10,20 +10,20 @@
 
 typedef enum
 {
-    ROLE_BATSMAN = 1,
-    ROLE_BOWLER = 2,
-    ROLE_ALLROUNDER = 3
+    BATSMAN = 1,
+    BOWLER = 2,
+    ALLROUNDER = 3
 } PlayerRole;
 
 const char* roleToString(PlayerRole role)
 {
     switch(role)
     {
-        case ROLE_BATSMAN: 
+        case BATSMAN: 
             return "Batsman";
-        case ROLE_BOWLER: 
+        case BOWLER: 
             return "Bowler";
-        case ROLE_ALLROUNDER: 
+        case ALLROUNDER: 
             return "All-rounder";
         default: 
             return "Unknown";
@@ -148,15 +148,15 @@ void addFromDataSet()
         strcpy(player->teamName, players[i].team);
         if(strcmp(players[i].role, "Batsman") == 0) 
         {
-            player->role = ROLE_BATSMAN;
+            player->role = BATSMAN;
         }
         else if(strcmp(players[i].role, "Bowler") == 0) 
         {
-            player->role = ROLE_BOWLER;
+            player->role = BOWLER;
         }
         else
         {
-            player->role = ROLE_ALLROUNDER;
+            player->role = ALLROUNDER;
         }
         player->totalRuns = players[i].totalRuns;
         player->battingAvg = players[i].battingAverage;
@@ -179,11 +179,11 @@ void addFromDataSet()
 
 float computePerformanceIndex(Player *player)
 {
-    if(player->role == ROLE_BATSMAN)
+    if(player->role == BATSMAN)
     {
         return (player->battingAvg * player->strikeRate) / 100.0f;
     }
-    if(player->role == ROLE_BOWLER)
+    if(player->role == BOWLER)
     {
         return (player->wickets * 2) + (100 - player->economyRate);
     }
@@ -194,18 +194,18 @@ void appendPlayer(Team *team, Player *player)
 {
     team->totalPlayers++;
 
-    if(player->role == ROLE_BATSMAN || player->role == ROLE_ALLROUNDER)
+    if(player->role == BATSMAN || player->role == ALLROUNDER)
     {
         team->batSRsum += player->strikeRate;
         team->batsmenCount++;
         team->avgBatStrikeRate = team->batSRsum / team->batsmenCount;
     }
 
-    if(player->role == ROLE_BATSMAN)
+    if(player->role == BATSMAN)
     {
         insertSorted(&team->batsmenHead, player);
     }
-    else if(player->role == ROLE_BOWLER)
+    else if(player->role == BOWLER)
     {
         insertSorted(&team->bowlersHead, player);
     }
@@ -438,11 +438,11 @@ void displayTopKPlayers()
 
     Player *head = NULL;
 
-    if(role == ROLE_BATSMAN)
+    if(role == BATSMAN)
     {
         head = Teams[index].batsmenHead;
     }
-    else if(role == ROLE_BOWLER)
+    else if(role == BOWLER)
     {
         head = Teams[index].bowlersHead;
     }
@@ -480,11 +480,11 @@ void displayAllPlayersByPerformanceIndex()
     printf("Enter Role (1=Batsman, 2=Bowler, 3=All-rounder): ");
     scanf("%d", &role);
 
-    if(role == ROLE_BATSMAN)
+    if(role == BATSMAN)
     {
         strcpy(roleText, "Batsman");
     }
-    else if(role == ROLE_BOWLER)
+    else if(role == BOWLER)
     {
         strcpy(roleText, "Bowler");
     }
@@ -499,11 +499,11 @@ void displayAllPlayersByPerformanceIndex()
     {
         Player *player = NULL;
 
-        if(role == ROLE_BATSMAN)
+        if(role == BATSMAN)
         {
             player = Teams[i].batsmenHead;
         }
-        else if(role == ROLE_BOWLER)
+        else if(role == BOWLER)
         {
             player = Teams[i].bowlersHead;
         }
