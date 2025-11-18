@@ -47,6 +47,8 @@ void writeCommand(char *fileName, char *content);
 void readCommand(char *fileName);
 void deleteCommand(char *fileName);
 void dfCommand();
+void freeFileNode(FileNode *node);
+void freeFreeBlock();
 
 static unsigned char virtualDisk[NUM_BLOCKS][BLOCK_SIZE];
 
@@ -122,6 +124,8 @@ int main()
         }
         else if (strcmp(line, "exit") == 0)
         {
+            freeFileNode(root);
+            freeFreeBlock();
             printf("Exit\n");
             turn = false;
         }
@@ -181,7 +185,7 @@ void pushFreeBlock(int index)
     node->next = NULL;
     node->prev = tail;
 
-    if (!head)
+    if(!head)
     {
         head = tail = node;
     }
@@ -195,7 +199,7 @@ void pushFreeBlock(int index)
 int countFreeBlocks()
 {
     int count = 0;
-    for(FreeBlock *temp = head; temp; temp = temp->next)
+    for(FreeBlock *temp = head; temp != NULL; temp = temp->next)
     {
         count++;
     }
@@ -263,7 +267,12 @@ void mkdirCommand(char *name)
 {
     if(!name)
     {
-        printf("Usage: mkdir <dirname>\n");
+        printf("Please enter a valid directory name.\n");
+        return;
+    }
+    if(strcmp(name, "..") == 0)
+    {
+        printf("Invalid directory name: '..' is reserved.\n");
         return;
     }
     if(findChild(cwd, name))
@@ -281,7 +290,7 @@ void lsCommand()
 {
     if(!cwd->child)
     { 
-        printf("(empty)\n");
+        printf("Empty.\n");
         return; 
     }
     FileNode *temp = cwd->child;
@@ -300,9 +309,9 @@ void lsCommand()
 
 void cdCommand(char *name)
 {
-    if (!name)
+    if(!name)
     { 
-        printf("Usage: cd <dirname>\n");
+        printf("Please enter a valid directory name.\n");
         return;
     }
     if(strcmp(name, "..") == 0 && cwd->parent)
@@ -329,7 +338,7 @@ void pwdCommand()
         return;
     }
 
-    char path[1024] = "";
+    char path[1000] = "";
     FileNode *temp = cwd;
     char *parts[100];
     int count = 0;
@@ -353,7 +362,7 @@ void rmdirCommand(char *name)
 {
     if(!name)
     {
-        printf("Usage: rmdir <dirname>\n");
+        printf("Please enter a valid directory name.\n");
         return;
     }
     FileNode *directory = findChild(cwd, name);
@@ -364,13 +373,13 @@ void rmdirCommand(char *name)
         return;
     }
 
-    if (directory->child != NULL)
+    if(directory->child != NULL)
     {
         printf("Directory '%s' is not empty.\n", name);
         return;
     }
 
-    if (directory->next == directory)
+    if(directory->next == directory)
     {
         cwd->child = NULL;
     }
@@ -378,7 +387,7 @@ void rmdirCommand(char *name)
     {
         directory->prev->next = directory->next;
         directory->next->prev = directory->prev;
-        if (cwd->child == directory)
+        if(cwd->child == directory)
         {
             cwd->child = directory->next;
         }
@@ -392,7 +401,7 @@ void createCommand(char *name)
 {
     if(!name)
     { 
-        printf("Usage: create <filename>\n");
+        printf("Please enter a valid file name.\n");
         return;
     }
     if(findChild(cwd, name))
@@ -415,25 +424,43 @@ void writeCommand(char *fileName, char *content)
         return; 
     }
 
+    if(file->blockPointers != NULL && file->blockCount > 0)
+    {
+        for(int i = 0; i < file->blockCount; i++)
+        {
+            pushFreeBlock(file->blockPointers[i]);  
+        }
+        free(file->blockPointers);
+        file->blockPointers = NULL;
+        file->blockCount = 0;
+        file->fileSize = 0;
+    }
+
+
     int bytes = strlen(content);
     int blocks = (bytes + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    
     if(countFreeBlocks() < blocks)
     { 
         printf("Disk full!\n");
         return; 
     }
 
+
+
     file->blockPointers = malloc(sizeof(int) * blocks);
     file->blockCount = blocks;
     file->fileSize = bytes;
 
+    int remainingBytes = bytes;
+
     for(int i = 0; i < blocks; i++)
     {
-        int idx = popFreeBlock();
-        file->blockPointers[i] = idx;
-        int toCopy = (bytes > BLOCK_SIZE) ? BLOCK_SIZE : bytes;
-        memcpy(virtualDisk[idx], content + i * BLOCK_SIZE, toCopy);
-        bytes -= toCopy;
+        int index = popFreeBlock();
+        file->blockPointers[i] = index;
+        int toCopy = (remainingBytes > BLOCK_SIZE) ? BLOCK_SIZE : remainingBytes;
+        memcpy(virtualDisk[index], content + i * BLOCK_SIZE, toCopy);
+        remainingBytes -= toCopy;
     }
     printf("Wrote %d bytes to '%s'\n", file->fileSize, fileName);
 }
@@ -450,9 +477,9 @@ void readCommand(char *fileName)
     int bytes = file->fileSize;
     for(int i = 0; i < file->blockCount && bytes > 0; i++)
     {
-        int idx = file->blockPointers[i];
+        int index = file->blockPointers[i];
         int toPrint = bytes > BLOCK_SIZE ? BLOCK_SIZE : bytes;
-        fwrite(virtualDisk[idx], 1, toPrint, stdout);
+        fwrite(virtualDisk[index], 1, toPrint, stdout);
         bytes -= toPrint;
     }
     printf("\n");
@@ -501,3 +528,50 @@ void dfCommand()
     printf("Free Blocks: %d\n", freeCount);
     printf("Disk Usage: %.2f%%\n", usage);
 }
+
+void freeFileNode(FileNode *node)
+{
+    if(!node)
+    {
+        return;
+    }
+
+    FileNode *child = node->child;
+
+    if(child != NULL)
+    {
+        FileNode *first = child;
+        child->prev->next = NULL; 
+        child->prev = NULL;
+
+        FileNode *temp = first;
+        while(temp != NULL)
+        {
+            FileNode *next = temp->next;
+            freeFileNode(temp);  
+            temp = next;
+        }
+    }
+
+    if(!node->isDirectory && node->blockPointers)
+    {
+        free(node->blockPointers);
+    }
+
+    free(node);
+}
+
+void freeFreeBlock()
+{
+    FreeBlock *temp = head;
+    while(temp != NULL)
+    {
+        FreeBlock *next = temp->next;
+        free(temp);
+        temp = next;
+    }
+    head = tail = NULL;
+}
+
+
+
