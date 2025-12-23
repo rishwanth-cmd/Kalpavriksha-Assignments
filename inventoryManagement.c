@@ -342,6 +342,17 @@ void deleteProduct(Product **product, int *currentProductCapacity)
 
     printf("Product with ID %d deleted successfully.\n", id);
 
-    *product = (Product *)realloc(*product, (*currentProductCapacity) * sizeof(Product));
-
+    if(*currentProductCapacity == 0)
+    {
+        free(*product);
+        *product = NULL;   
+    }
+    else
+    {
+        Product *temp = realloc(*product, (*currentProductCapacity) * sizeof(Product));
+        if(temp != NULL)
+        {
+            *product = temp;
+        }
+    }
 }
