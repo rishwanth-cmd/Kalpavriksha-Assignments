@@ -43,6 +43,7 @@ void moveToHead(Queue *node);
 Queue *removeTail();
 void mapRemove(int key);
 char *getValue(int key);
+void freeCache();
 
 int main()
 {
@@ -81,6 +82,7 @@ int main()
         }
         else if(strcmp(command, "exit") == 0)
         {
+            freeCache();
             turn = false;
         }
     }
@@ -273,4 +275,29 @@ char *getValue(int key)
 
     moveToHead(node);
     return node->value;
+}
+
+void freeCache()
+{
+    Queue *curr = cache->head;
+    while(curr != NULL)
+    {
+        Queue *temp = curr;
+        curr = curr->next;
+        free(temp);
+    }
+
+    for(int i = 0; i < TABLE_SIZE; i++)
+    {
+        HashMap *hm = hashTable[i];
+        while(hm != NULL)
+        {
+            HashMap *temp = hm;
+            hm = hm->next;
+            free(temp);
+        }
+        hashTable[i] = NULL;
+    }
+    free(cache);
+    cache = NULL;
 }
