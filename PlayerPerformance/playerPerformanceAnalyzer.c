@@ -79,6 +79,7 @@ void displayTeamsByAvgSR();
 void displayTopKPlayers();
 void displayAllPlayersByPerformanceIndex();
 void insertSortedTemp(TempNode **head, Player *player);
+void freeAllMemory();
 
 int main()
 {
@@ -114,7 +115,8 @@ int main()
             case 5: 
                 displayAllPlayersByPerformanceIndex();
                 break;
-            case 6: 
+            case 6:
+                freeAllMemory();
                 printf("Freed Memory.\n");
                 turn = false;
                 break;
@@ -580,4 +582,28 @@ void insertSortedTemp(TempNode **head, Player *player)
 
     newNode->next = currentPlayer->next;
     currentPlayer->next = newNode;
+}
+
+void freeAllMemory()
+{
+    for(int i = 0; i < teamCount; i++)
+    {
+        Player *lists[] = 
+        {
+        Teams[i].batsmenHead,
+        Teams[i].bowlersHead,
+        Teams[i].allroundersHead
+        };
+
+        for(int j = 0; j < 3; j++)
+        {
+            Player *curr = lists[j];
+            while(curr != NULL)
+            {
+                Player *temp = curr;
+                curr = curr->next;
+                free(temp);
+            }
+        }
+    }
 }
