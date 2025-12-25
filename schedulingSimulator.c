@@ -17,6 +17,7 @@ typedef struct PCB
     int io_started;
     int executed_cpu;
     int completion_time;
+    int kill_time;
     int state;
     struct PCB *next;
 } PCB;
@@ -290,7 +291,7 @@ void applyKillEvents(
                 if(*current_running && (*current_running)->process_id == process->process_id)
                 {
                     (*current_running)->state = 2;
-                    (*current_running)->completion_time = tick;
+                    (*current_running)->kill_time = tick;
 
                     hashmapRemove(hash_table, process->process_id);
                     queuePush(terminated_queue, *current_running);
@@ -300,14 +301,14 @@ void applyKillEvents(
                 else if(queueRemoveByPid(ready_queue, process->process_id))
                 {
                     process->state = 2;
-                    process->completion_time = tick;
+                    process->kill_time = tick;
                     hashmapRemove(hash_table, process->process_id);
                     queuePush(terminated_queue, process);
                 }
                 else if(queueRemoveByPid(waiting_queue, process->process_id))
                 {
                     process->state = 2;
-                    process->completion_time = tick;
+                    process->kill_time = tick;
                     hashmapRemove(hash_table, process->process_id);
                     queuePush(terminated_queue, process);
                 }
@@ -430,7 +431,7 @@ void simulate(
 
 void printResults(Queue *terminated_queue)
 {
-    printf("PID\tName\tCPU\tIO\tTurnaround\tWaiting\n");
+    printf("PID\tName\tCPU\tIO\tStatus\t\tTurnaround\tWaiting\n");
 
     QueueNode *current = terminated_queue->head;
 
@@ -440,7 +441,7 @@ void printResults(Queue *terminated_queue)
 
         if(process->state == 2)
         {
-            printf("%d\t%s\t%d\t%d\t-\t\t-\n", process->process_id, process->process_name, process->cpu_burst, process->io_duration);
+            printf("%d\t%s\t%d\t%d\tKILLED at %d\t-\t\t-\n", process->process_id, process->process_name, process->cpu_burst, process->io_duration, process->kill_time);
         }
         else
         {
@@ -449,7 +450,7 @@ void printResults(Queue *terminated_queue)
 
             if(waiting < 0) waiting = 0;
 
-            printf("%d\t%s\t%d\t%d\t%d\t\t%d\n", process->process_id, process->process_name, process->cpu_burst, process->io_duration, turnaround, waiting);
+            printf("%d\t%s\t%d\t%d\tOK\t\t%d\t\t%d\n", process->process_id, process->process_name, process->cpu_burst, process->io_duration, turnaround, waiting);
         }
 
         current = current->next;
