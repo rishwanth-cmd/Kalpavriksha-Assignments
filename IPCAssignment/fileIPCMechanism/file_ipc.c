@@ -3,11 +3,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-void sort(int arr[], int n)
+void sort(int arr[], int noOfElements)
 {
-    for(int i = 0; i < n - 1; i++)
+    for(int i = 0; i < noOfElements - 1; i++)
     {
-        for(int j = i + 1; j < n; j++)
+        for(int j = i + 1; j < noOfElements; j++)
         {
             if(arr[i] > arr[j])
             {
@@ -21,18 +21,34 @@ void sort(int arr[], int n)
 
 int main()
 {
-    int arr[5] = {5, 3, 1, 4, 2};
+    int noOfElements;
     FILE *fp;
 
+    printf("Enter number of elements: ");
+    scanf("%d", &noOfElements);
+
+    int *arr = (int *)malloc(noOfElements * sizeof(int));
+    if(arr == NULL)
+    {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    printf("Enter array elements:\n");
+    for(int i = 0; i < noOfElements; i++)
+    {
+        scanf("%d", &arr[i]);
+    }
+
     printf("Before Sorting: ");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < noOfElements; i++)
     {
         printf("%d ", arr[i]);
     }
     printf("\n");
 
     fp = fopen("data.txt", "w");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < noOfElements; i++)
     {
         fprintf(fp, "%d ", arr[i]);
     }
@@ -41,16 +57,16 @@ int main()
     if(fork() == 0)
     {
         fp = fopen("data.txt", "r");
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < noOfElements; i++)
         {
             fscanf(fp, "%d", &arr[i]);
         }
         fclose(fp);
 
-        sort(arr, 5);
+        sort(arr, noOfElements);
 
         fp = fopen("data.txt", "w");
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < noOfElements; i++)
         {
             fprintf(fp, "%d ", arr[i]);
         }
@@ -60,18 +76,19 @@ int main()
     wait(NULL);
 
     fp = fopen("data.txt", "r");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < noOfElements; i++)
     {
         fscanf(fp, "%d", &arr[i]);
     }
     fclose(fp);
 
     printf("After Sorting: ");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < noOfElements; i++)
     {
         printf("%d ", arr[i]);
     }
     printf("\n");
 
+    free(arr);
     return 0;
 }

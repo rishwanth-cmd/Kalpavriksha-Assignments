@@ -5,17 +5,20 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#define MAX 100
+
 struct msg
 {
     long type;
-    int arr[5];
+    int noOfElements;
+    int arr[MAX];
 };
 
-void sort(int arr[])
+void sort(int arr[], int noOfElements)
 {
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < noOfElements; i++)
     {
-        for(int j = i + 1; j < 5; j++)
+        for(int j = i + 1; j < noOfElements; j++)
         {
             if(arr[i] > arr[j])
             {
@@ -32,37 +35,42 @@ int main()
     int msgid = msgget(IPC_PRIVATE, 0666 | IPC_CREAT);
     struct msg m;
 
-    int arr[5] = {8, 6, 4, 2, 0};
+    printf("Enter number of elements: ");
+    scanf("%d", &m.noOfElements);
+
+    printf("Enter array elements:\n");
+    for(int i = 0; i < m.noOfElements; i++)
+    {
+        scanf("%d", &m.arr[i]);
+    }
 
     printf("Before Sorting: ");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < m.noOfElements; i++)
     {
-        printf("%d ", arr[i]);
+        printf("%d ", m.arr[i]);
     }
     printf("\n");
 
     if(fork() == 0)
     {
-        msgrcv(msgid, &m, sizeof(m.arr), 1, 0);
-        sort(m.arr);
+        msgrcv(msgid, &m, sizeof(m) - sizeof(long), 1, 0);
+
+        sort(m.arr, m.noOfElements);
+
         m.type = 2;
-        msgsnd(msgid, &m, sizeof(m.arr), 0);
+        msgsnd(msgid, &m, sizeof(m) - sizeof(long), 0);
         exit(0);
     }
 
     m.type = 1;
-    for(int i = 0; i < 5; i++)
-    {
-        m.arr[i] = arr[i];
-    }
-    msgsnd(msgid, &m, sizeof(m.arr), 0);
+    msgsnd(msgid, &m, sizeof(m) - sizeof(long), 0);
 
     wait(NULL);
 
-    msgrcv(msgid, &m, sizeof(m.arr), 2, 0);
+    msgrcv(msgid, &m, sizeof(m) - sizeof(long), 2, 0);
 
     printf("After Sorting: ");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < m.noOfElements; i++)
     {
         printf("%d ", m.arr[i]);
     }

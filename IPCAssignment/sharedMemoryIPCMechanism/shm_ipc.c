@@ -4,11 +4,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-void sort(int *arr)
+void sort(int *arr, int noOfElements)
 {
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < noOfElements - 1; i++)
     {
-        for(int j = i + 1; j < 5; j++)
+        for(int j = i + 1; j < noOfElements; j++)
         {
             if(arr[i] > arr[j])
             {
@@ -22,34 +22,45 @@ void sort(int *arr)
 
 int main()
 {
-    int shmid = shmget(IPC_PRIVATE, 5 * sizeof(int), 0666 | IPC_CREAT);
-    int *arr = (int *)shmat(shmid, NULL, 0);
+    int noOfElements;
 
-    int data[5] = {10, 9, 8, 7, 6};
+    printf("Enter number of elements: ");
+    scanf("%d", &noOfElements);
+
+    int shmid = shmget(IPC_PRIVATE, (noOfElements + 1) * sizeof(int), 0666 | IPC_CREAT);
+
+    int *shm = (int *)shmat(shmid, NULL, 0);
+    shm[0] = noOfElements;
+
+    printf("Enter array elements:\n");
+    for(int i = 0; i < noOfElements; i++)
+    {
+        scanf("%d", &shm[i + 1]);
+    }
 
     printf("Before Sorting: ");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < noOfElements; i++)
     {
-        arr[i] = data[i];
-        printf("%d ", arr[i]);
+        printf("%d ", shm[i + 1]);
     }
     printf("\n");
 
     if(fork() == 0)
     {
-        sort(arr);
+        int n = shm[0];
+        sort(&shm[1], n);
         exit(0);
     }
     wait(NULL);
 
     printf("After Sorting: ");
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < noOfElements; i++)
     {
-        printf("%d ", arr[i]);
+        printf("%d ", shm[i + 1]);
     }
     printf("\n");
 
-    shmdt(arr);
+    shmdt(shm);
     shmctl(shmid, IPC_RMID, NULL);
     return 0;
 }
