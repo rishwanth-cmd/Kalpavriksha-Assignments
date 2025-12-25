@@ -207,6 +207,12 @@ void readInput(
 
     while(fgets(line, sizeof(line), stdin))
     {
+
+        if(strncmp(line, "END", 3) == 0)
+        {
+            break;
+        }
+
         if(strncmp(line, "kill", 4) == 0)
         {
             int pid;
